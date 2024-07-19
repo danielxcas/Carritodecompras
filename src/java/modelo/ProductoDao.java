@@ -28,24 +28,22 @@ public class ProductoDao {
  PreparedStatement ps;
      ResultSet rx;  
      public Producto listarId(int id){
-    String sql="select * from producto where idProducto= ?"+id;
+    String sql="select * from producto where idProducto= "+id;
          Producto p=new Producto();
          try (Connection con=cn.obtenerConexion()){
              ps=con.prepareStatement(sql);
              rx=ps.executeQuery();
              while (rx.next()) {                 
                  p.setIdProducto(rx.getInt("idProducto"));
-                p.setNombre(rx.getString("Nombre"));
+                p.setNombre(rx.getString("Nombres"));
                 p.setFoto(rx.getBinaryStream("Foto"));
                 p.setDescripcion(rx.getString("Descripcion"));
                 p.setPrecio(rx.getDouble("Precio"));
-                p.setStock(rx.getInt("Stock")); 
-                  
+                p.setStock(rx.getInt("Stock"));                  
              }
          } catch (Exception e) {
              e.printStackTrace();
-         }
-    
+         }   
     return p;
     }
    public List listar(){
@@ -61,8 +59,8 @@ public class ProductoDao {
              p.setFoto(rx.getBinaryStream(3));
              p.setDescripcion(rx.getString(4));
              p.setPrecio(rx.getDouble(5));
-            p.setStock(rx.getInt(6));
-            lista.add(p);
+             p.setStock(rx.getInt(6));
+             lista.add(p);
              }
          } catch (SQLException e) {
           e.printStackTrace();

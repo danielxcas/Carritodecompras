@@ -18,7 +18,7 @@
     <body>
           <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
   <div class="container-fluid">
-    <a class="navbar-brand" href="#">Navbar</a>
+    <a class="navbar-brand" href="#">Mercados dorita</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
@@ -32,17 +32,17 @@
         </li>
        
         <li class="nav-item">
-            <a class="nav-link disabled" aria-disabled="true"><i class="fas fa-cart-plus"><label style=" color: darkorange">${contador}</label></i>Carrito</a>
+            <a class="nav-link " href="Controlador?accion=Carrito" aria-disabled="true"><i class="fas fa-cart-plus">(<label style=" color: darkorange">${contador}</label>)</i>Carrito</a>
         </li>
       </ul>
       <form class="d-flex" role="search">
-        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-        <button class="btn btn-outline-success" type="submit">Search</button>
+        <input class="form-control me-2" type="search" placeholder="Buscar" aria-label="Buscar">
+        <button class="btn btn-outline-success" type="submit">Buscar</button>
       </form>
         <ul class="navbar-nav">
              <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            Dropdown
+            IniciarSesion
           </a>
           <ul class="dropdown-menu">
             <li><a class="dropdown-item" href="#">Action</a></li>
@@ -71,8 +71,8 @@
                         <div class="card-footer">
                             <label>${p.getDescripcion()}</label>
                             <div>
-                                <a class="btn btn-outline-info" href="Controlador?accion=AgregarCarrito&id=${p.getIdProducto()}">Agregar carrito</a>
-                            <a class="btn btn-danger">Comprar</a>                                 
+                                <a class="btn btn-outline-info" href="Controlador?accion=Agregarcarrito&id=${p.getIdProducto()}">Agregarcarrito</a>
+                            <a class="btn btn-danger" href="Controlador?accion=Comprar&id=${p.getIdProducto()}">Comprar</a>                                 
                             </div>
                              </div>
             </div>

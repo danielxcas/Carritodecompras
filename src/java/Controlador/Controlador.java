@@ -30,36 +30,147 @@ public class Controlador extends HttpServlet {
     int item;
     int cantidad=1;
     double totalPagar=0.0;
+    int idp;
+    Carrito car;
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
           String accion = request.getParameter("accion");
         productos = pdao.listar();
         
-        switch (accion) {
-            case "Agregarcarrito":
-                int idp=Integer.parseInt(request.getParameter("id"));
-                p=pdao.listarId(idp);
-                item=item+1;
-                Carrito car=new Carrito();
+try {
+    switch (accion) {
+        case "Comprar":
+               try {
+    idp = Integer.parseInt(request.getParameter("id"));
+    p = pdao.listarId(idp);
+    item = item + 1;
+    car = new Carrito();
+    car.setItem(item);
+    car.setIdProducto(p.getIdProducto());
+    car.setNombres(p.getNombre());
+    car.setDescripcion(p.getDescripcion());
+    car.setPrecioCompra(p.getPrecio());
+    car.setCantidad(cantidad);
+    car.setSubTotal(cantidad * p.getPrecio());
+    listaCarritos.add(car);
+    for (int i = 0; i < listaCarritos.size(); i++) {
+        totalPagar = totalPagar + listaCarritos.get(i).getSubTotal();
+    }
+    request.setAttribute("totalPagar",totalPagar);
+    request.setAttribute("carrito", listaCarritos);
+    request.setAttribute("contador", listaCarritos.size());
+    request.getRequestDispatcher("vistas/carrito.jsp").forward(request, response);
+} catch (NumberFormatException e) {
+    e.printStackTrace();
+} catch (Exception e) {
+    e.printStackTrace();
+}
+            break;
+        case "Agregarcarrito":
+            try {
+                int pos = 0;
+                cantidad=1;
+                idp = Integer.parseInt(request.getParameter("id"));
+                p = pdao.listarId(idp);
+                if (listaCarritos.size()>0) {
+                    for (int i = 0; i < listaCarritos.size(); i++) {
+                        if (idp==listaCarritos.get(i).getIdProducto()) {
+                            pos=i;
+                        }
+                    }
+                    if (idp==listaCarritos.get(pos).getIdProducto()) {
+                        cantidad=listaCarritos.get(pos).getCantidad()+cantidad;
+                        double subtotal=listaCarritos.get(pos).getPrecioCompra()*cantidad;
+                        listaCarritos.get(pos).setSubTotal(subtotal);
+                        listaCarritos.get(pos).setCantidad(cantidad);
+                    } else {
+                item = item + 1;
+                car = new Carrito();
                 car.setItem(item);
                 car.setIdProducto(p.getIdProducto());
                 car.setNombres(p.getNombre());
                 car.setDescripcion(p.getDescripcion());
                 car.setPrecioCompra(p.getPrecio());
                 car.setCantidad(cantidad);
-                car.setSubTotal(totalPagar*p.getPrecio());
-                listaCarritos.add(car);
-                request.setAttribute("contador",listaCarritos.size());
-                request.getRequestDispatcher("Controlador?=accion=home").forward(request, response);
-                break;
-                case "Carrito":
-                // Agregar lógica específica para el caso "ejemplo" si es necesario
-                break;
-            default:
-                request.setAttribute("productos", productos);
-                RequestDispatcher dispatcher = request.getRequestDispatcher("index.jsp");
-                dispatcher.forward(request, response);
+                car.setSubTotal(cantidad * p.getPrecio());
+                listaCarritos.add(car);    
+                    }
+  
+                } else {
+                 item = item + 1;
+                car = new Carrito();
+                car.setItem(item);
+                car.setIdProducto(p.getIdProducto());
+                car.setNombres(p.getNombre());
+                car.setDescripcion(p.getDescripcion());
+                car.setPrecioCompra(p.getPrecio());
+                car.setCantidad(cantidad);
+                car.setSubTotal(cantidad * p.getPrecio());
+                listaCarritos.add(car);   
+                }
+                
+                request.setAttribute("contador", listaCarritos.size());
+                request.getRequestDispatcher("Controlador?accion=home").forward(request, response);
+                
+            } catch (NumberFormatException e) {
+                // Manejo de excepción si el parámetro 'id' no es un número válido
+                e.printStackTrace();
+            } catch (Exception e) {
+                // Manejo de cualquier otra excepción
+                e.printStackTrace();
+            }
+            break;
+            case"Delete":
+                try {
+    int idproducto = Integer.parseInt(request.getParameter("idp"));
+    for (int i = 0; i < listaCarritos.size(); i++) {
+        if (listaCarritos.get(i).getItem() == idproducto) {
+            listaCarritos.remove(i);
+            break; // Assuming you only want to remove the first match
+        }
     }
+    request.getRequestDispatcher("Controlador?accion=Carrito").forward(request, response);
+} catch (NumberFormatException e) {
+    e.printStackTrace();
+   
+} catch (Exception e) {
+    e.printStackTrace();
+}
+
+            break;
+            case "ActualizarCantidad":
+                int idpro=Integer.parseInt(request.getParameter("idp"));
+                int cant=Integer.parseInt(request.getParameter("Cantidad"));
+                for (int i = 0; i < listaCarritos.size(); i++) {
+                    if (listaCarritos.get(i).getIdProducto()==idpro) {
+                        listaCarritos.get(i).setCantidad(cant);
+                        double st=listaCarritos.get(i).getPrecioCompra()*cant;
+                        listaCarritos.get(i).setSubTotal(st);
+                    }
+                }
+                break;
+        case "Carrito":
+            totalPagar=0.0;
+            request.setAttribute("carrito",listaCarritos);
+            for (int i = 0; i <listaCarritos.size(); i++) {
+                totalPagar=totalPagar+listaCarritos.get(i).getSubTotal();
+            }
+            request.setAttribute("totalPagar",totalPagar);
+            request.getRequestDispatcher("vistas/carrito.jsp").forward(request, response);
+            
+            break;
+        default:
+            request.setAttribute("productos", productos);
+            RequestDispatcher dispatcher = request.getRequestDispatcher("index.jsp");
+            dispatcher.forward(request, response);
+            break;
+    }
+} catch (Exception e) {
+    // Manejo de cualquier excepción fuera del switch
+    e.printStackTrace();
+    request.setAttribute("error", "Ocurrió un error al procesar la solicitud.");
+    request.getRequestDispatcher("index.jsp").forward(request, response);
+}
     }
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
