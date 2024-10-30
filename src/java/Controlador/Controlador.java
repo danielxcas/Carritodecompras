@@ -4,6 +4,8 @@
  */
 package Controlador;
 
+import Config.Fecha;
+import ModeloDao.CompraDao;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -15,7 +17,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import modelo.Carrito;
 import modelo.Producto;
-import modelo.ProductoDao;
+import ModeloDao.ProductoDao;
+import modelo.Cliente;
+import modelo.Compra;
 
 /**
  *
@@ -139,16 +143,37 @@ try {
 
             break;
             case "ActualizarCantidad":
-                int idpro=Integer.parseInt(request.getParameter("idp"));
-                int cant=Integer.parseInt(request.getParameter("Cantidad"));
-                for (int i = 0; i < listaCarritos.size(); i++) {
-                    if (listaCarritos.get(i).getIdProducto()==idpro) {
-                        listaCarritos.get(i).setCantidad(cant);
-                        double st=listaCarritos.get(i).getPrecioCompra()*cant;
-                        listaCarritos.get(i).setSubTotal(st);
-                    }
-                }
+    try {
+        int idpro = Integer.parseInt(request.getParameter("idp"));
+        int cant = Integer.parseInt(request.getParameter("Cantidad"));
+        
+        // Actualizar cantidad y subtotal del producto en el carrito
+        for (Carrito itemCarrito : listaCarritos) {
+            if (itemCarrito.getIdProducto() == idpro) {
+                itemCarrito.setCantidad(cant);
+                double nuevoSubTotal = itemCarrito.getPrecioCompra() * cant;
+                itemCarrito.setSubTotal(nuevoSubTotal);
                 break;
+            }
+        }
+        
+        // Recalcular el total a pagar
+        totalPagar = 0.0;
+        for (Carrito itemCarrito : listaCarritos) {
+            totalPagar += itemCarrito.getSubTotal();
+        }
+        
+        // Enviar el total actualizado y el carrito de vuelta a la vista
+        request.setAttribute("totalPagar", totalPagar);
+        request.setAttribute("carrito", listaCarritos);
+        request.getRequestDispatcher("vistas/carrito.jsp").forward(request, response);
+        
+    } catch (NumberFormatException e) {
+        e.printStackTrace();
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    break;
         case "Carrito":
             totalPagar=0.0;
             request.setAttribute("carrito",listaCarritos);
@@ -159,6 +184,31 @@ try {
             request.getRequestDispatcher("vistas/carrito.jsp").forward(request, response);
             
             break;
+        case "GenerarCompra":
+        try {
+            // Crear un nuevo cliente
+            Cliente cliente = new Cliente();
+            cliente.setId(1);
+            // Crear un nuevo objeto CompraDAO
+            CompraDao dao = new CompraDao();
+            // Crear un nuevo objeto Compra
+            Compra compra = new Compra(cliente,1,Fecha.getFechaBD(),totalPagar,"Cancelado",listaCarritos);
+
+            // Generar la compra en la base de datos
+            int res = dao.GenerarCompra(compra);
+
+            // Verificar el resultado de la inserción
+            if (res != 0 && totalPagar > 0) {
+                request.getRequestDispatcher("vistas/mensaje.jsp").forward(request, response);
+            } else {
+                request.getRequestDispatcher("vistas/error.jsp").forward(request, response);
+            }
+        } catch (Exception e) {
+            e.printStackTrace(); // Imprimir el error en caso de excepción
+            request.getRequestDispatcher("vistas/error.jsp").forward(request, response);
+        }
+        break;
+
         default:
             request.setAttribute("productos", productos);
             RequestDispatcher dispatcher = request.getRequestDispatcher("index.jsp");

@@ -73,25 +73,28 @@
                     </thead>
                     <tbody>
                         <c:forEach var="car" items="${carrito}">
-                        <tr> 
-                            <td>${car.getItem()}</td> 
-                            <td>${car.getNombres()}</td>
-                            <td>${car.getDescripcion()}
-                                <img src="ControladorIMG?id=${car.getIdProducto()}" width="100" height="100">
-                            </td>                        
-                            <td>${car.getPrecioCompra()}</td>
-                            <td>
-                                <input type="hidden" id="idpro" value="${car.getPrecioCompra()}" >
-                                <input type="number" id="Cantidad" value="${car.getCantidad()}" class="form-control text-center " min="1" >
-                            </td> 
-                            <td>${car.getSubTotal()}</td>
-                            <td>
-                                <input type="hidden" id="idp" value="${car.getIdProducto()}" >
-                                <a href="Controlador?accion=Delete&idp=${car.getItem()}">eliminar</a>
-                               
-                            </td>
-                        </tr>
-                        
+                            <tr> 
+                                <td>${car.getItem()}</td> 
+                                <td>${car.getNombres()}</td>
+                                <td>${car.getDescripcion()}
+                                    <img src="ControladorIMG?id=${car.getIdProducto()}" width="100" height="100">
+                                </td>                        
+                                <td>${car.getPrecioCompra()}</td>
+                                <td>
+                                    <form action="Controlador" method="POST">
+                                        <input type="hidden" name="accion" value="ActualizarCantidad">
+                                        <input type="hidden" name="idp" value="${car.getIdProducto()}">
+                                        <input type="number" name="Cantidad" value="${car.getCantidad()}" class="form-control text-center" min="1" onchange="this.form.submit()">
+                                    </form>
+                                </td>
+                                <td>${car.getSubTotal()}</td>
+                                <td>
+                                    <input type="hidden" id="idp" value="${car.getIdProducto()}" >
+                                    <a href="Controlador?accion=Delete&idp=${car.getItem()}">eliminar</a>
+
+                                </td>
+                            </tr>
+
                         </c:forEach>
                         
                     </tbody>   
@@ -112,8 +115,8 @@
                             <input type="text" value="$.${totalPagar}0" readonly="" class="form-control">
                        </div>
                         <div class="card-footer">
-                            <a href="#" class="btn btn-info btn-block" >Realizar Pago</a>  
-                            <a href="#" class="btn btn-danger btn-block">Generar Compra</a>
+                            <a href="#" class="btn btn-info btn-block" >RealizarPago</a>  
+                            <a href="vistas/mensaje.jsp" class="btn btn-danger btn-block">GenerarCompra</a>
                        </div>
                     </div>
                         
